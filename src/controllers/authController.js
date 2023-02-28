@@ -37,7 +37,7 @@ export async function login(req,res){
         try {
             await db.query('INSERT INTO sessoes(token,"userId") VALUES($1,$2)',[token, user.rows[0].id])
            
-            return res.send(token)
+            return res.send({token})
         } catch (error) {
             console.error(error)
             return res.status(500).send('Ocorreu um erro no banco de dados')
@@ -45,7 +45,7 @@ export async function login(req,res){
 
 
     } else {
-        res.status(401).send('Email e/ou senha incorreto(s)')
+        res.status(401  ).send('Email e/ou senha incorreto(s)')
     }
 
 }
