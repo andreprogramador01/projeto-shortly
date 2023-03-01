@@ -49,3 +49,21 @@ export async function login(req,res){
     }
 
 }
+export async function getUser(req,res){
+    const sessionData = res.locals.sessao.rows[0]
+    try {
+        const user = await db.query(`SELECT * FROM usuarios WHERE id=$1`, [sessionData.userId])
+        const visitCounts = await db.query(`SELECT SUM("linksCount") FROM urls WHERE "userId"= $1`, [sessionData.userId])
+        const shortenedUrls = await db.query(`SELECT id, "shortUrl", url,"linksCount" as "visitCount"  FROM urls WHERE "userId"= $1 ORDER BY id`, [sessionData.userId])
+
+        const object = {
+            "id": user.rows[0].id,
+            "name":user.rows[0].name,
+            "visitCount":visitCounts.rows[0].sum,
+            "shortenedUrls" : shortenedUrls.rows
+        }
+        res.send(object)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
