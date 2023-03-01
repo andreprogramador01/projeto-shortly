@@ -28,6 +28,10 @@ export async function getUrlById(req,res){
     const dataUrl = await db.query(`SELECT id, "shortUrl", url FROM urls WHERE id=$1`, [id])
 
 
-    res.send(dataUrl.rows[0])
+    if (dataUrl.rowCount === 1){
+        res.send(dataUrl.rows[0])
+    }else{
+        res.sendStatus(404)
+    }
 
 }
