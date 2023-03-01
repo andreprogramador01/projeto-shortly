@@ -23,3 +23,11 @@ export async function shortUrl(req, res) {
 
 
 }
+export async function getUrlById(req,res){
+    const {id} = req.params
+    const dataUrl = await db.query(`SELECT id, "shortUrl", url FROM urls WHERE id=$1`, [id])
+
+
+    res.send(dataUrl.rows[0])
+
+}
