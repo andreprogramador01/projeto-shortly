@@ -45,15 +45,36 @@ export async function redirectShortUrl(req, res) {
     const { shortUrl } = req.params
     try {
         const getUrl = await db.query(`SELECT url, "linksCount" FROM urls WHERE "shortUrl"=$1`, [shortUrl])
-         if(getUrl.rowCount === 0){
+        if (getUrl.rowCount === 0) {
             return res.sendStatus(404)
-         }
-        const { linksCount,url } = getUrl.rows[0]
-        
-        const urlUpdated = await db.query(`UPDATE urls SET "linksCount"=$1 WHERE "shortUrl"=$2`, [linksCount+1,shortUrl])
-    
+        }
+        const { linksCount, url } = getUrl.rows[0]
+
+        const urlUpdated = await db.query(`UPDATE urls SET "linksCount"=$1 WHERE "shortUrl"=$2`, [linksCount + 1, shortUrl])
+
         res.redirect(url)
     } catch (error) {
         res.status(500).send(error)
     }
+
+}
+export async function deleteUrl(req, res) {
+    const { id } = req.params
+    const session = res.locals.sessao
+    const { userId } = session.rows[0]
+    try {
+        const findUrlUser = await db.query(`SELECT * FROM urls WHERE id=$1 AND "userId"=$2`, [id,userId])
+        const findUrl = await db.query(`SELECT * FROM urls WHERE id=$1 `, [id])
+        if(findUrl.rowCount ===0){
+            return res.sendStatus(404)
+        }
+        if(findUrlUser.rowCount ===0){
+            return res.sendStatus(401)
+        }
+        const urlDeleted = await db.query('DELETE FROM urls WHERE id=$1', [id])
+        res.sendStatus(204)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+    
 }
